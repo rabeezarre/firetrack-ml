@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the dataset from a CSV file
-file_path = 'processed_data.csv'  # Update this to your dataset's file path
+file_path = 'processed_data.csv'
 data = pd.read_csv(file_path)
 
 # Define thresholds for categorizing wildfire risk
