@@ -6,9 +6,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 
 # Load the new dataset
-new_data = pd.read_csv('min_param/processed_data.csv')
+new_data = pd.read_csv('min_param_api/processed_data.csv')
 
 # Preprocess the dataset
 features = new_data[['temperature', 'humidity', 'altitude']]
@@ -57,3 +58,11 @@ y_pred = clf.predict(X_test)
 print("Accuracy:", accuracy_score(y_test, y_pred))
 print("Classification Report:")
 print(classification_report(y_test, y_pred))
+
+
+joblib.dump(scaler, 'min_param_api/scaler_model.pkl')
+joblib.dump(kmeans, 'min_param_api/kmeans_model.pkl')
+joblib.dump(clf, 'min_param_api/random_forest_model.pkl')
+
+print("Models saved successfully.")
+

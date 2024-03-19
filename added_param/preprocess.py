@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv('min_param/raws.csv')
+df = pd.read_csv('added_param/raws.csv')
 
 # Convert 'ObservedDate' to the required datetime format
 df['ObservedDate'] = pd.to_datetime(df['ObservedDate'], format='%Y/%m/%d %H:%M:%S+00').dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
@@ -19,11 +19,13 @@ df['AirTempStandPlace'] = ((df['AirTempStandPlace'] - 32) * 5/9).round(4)
 # Convert 'RelativeHumidity' to float
 df['RelativeHumidity'] = pd.to_numeric(df['RelativeHumidity'], errors='coerce')
 
-# Select and rename the required columns
-processed_df = df[['OBJECTID', 'ObservedDate', 'AirTempStandPlace', 'RelativeHumidity', 'Elevation']].copy()
+# Select and rename the required columns, now including Latitude and Longitude
+processed_df = df[['OBJECTID', 'ObservedDate', 'AirTempStandPlace', 'RelativeHumidity', 'Elevation', 'Latitude', 'Longitude']].copy()
 processed_df.rename(columns={
     'OBJECTID': 'pointId',
     'ObservedDate': 'timestamp',
+    'Latitude': 'latitude',
+    'Longitude': 'longitude',
     'AirTempStandPlace': 'temperature',
     'RelativeHumidity': 'humidity',
     'Elevation': 'altitude'
@@ -37,7 +39,7 @@ processed_df.reset_index(drop=True, inplace=True)
 processed_df.index += 1
 processed_df['dataId'] = processed_df.index
 
-# Reorder the columns to match the desired output
-final_processed_df = processed_df[['dataId', 'pointId', 'timestamp', 'temperature', 'humidity', 'altitude']]
+# Reorder the columns to match the desired output, now including latitude and longitude
+final_processed_df = processed_df[['dataId', 'pointId', 'timestamp', 'temperature', 'humidity', 'altitude', 'latitude', 'longitude']]
 
-final_processed_df.to_csv('min_param/processed_data.csv', index=False)
+final_processed_df.to_csv('added_param/processed_data.csv', index=False)

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the new dataset
-new_data = pd.read_csv('min_param/processed_data.csv')
+new_data = pd.read_csv('processed_data.csv')
 
 # Preprocess the dataset
 features = new_data[['temperature', 'humidity', 'altitude']]

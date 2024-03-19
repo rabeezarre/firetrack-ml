@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv('min_param/raws.csv')
+df = pd.read_csv('min_param_api/raws.csv')
 
 # Convert 'ObservedDate' to the required datetime format
 df['ObservedDate'] = pd.to_datetime(df['ObservedDate'], format='%Y/%m/%d %H:%M:%S+00').dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
@@ -40,4 +40,4 @@ processed_df['dataId'] = processed_df.index
 # Reorder the columns to match the desired output
 final_processed_df = processed_df[['dataId', 'pointId', 'timestamp', 'temperature', 'humidity', 'altitude']]
 
-final_processed_df.to_csv('min_param/processed_data.csv', index=False)
+final_processed_df.to_csv('min_param_api/processed_data.csv', index=False)
