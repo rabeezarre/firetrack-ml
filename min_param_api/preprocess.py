@@ -1,16 +1,15 @@
 import pandas as pd
 import numpy as np
 
-# Load the dataset
-df = pd.read_csv('raws.csv')
+df = pd.read_csv('min_param_api/raws.csv')
 
-# Convert 'ObservedDate' to the required datetime format
+# Convert 'ObservedDate'
 df['ObservedDate'] = pd.to_datetime(df['ObservedDate'], format='%Y/%m/%d %H:%M:%S+00').dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
 # Replace 'NO DATA' and 'NaN' with np.nan to handle missing values before conversion
 df.replace({'NO DATA': pd.NA, 'NaN': pd.NA, ' deg. F': '', '%': ''}, inplace=True, regex=True)
 
-# Safely convert 'AirTempStandPlace' to float
+# Convert 'AirTempStandPlace' to float
 df['AirTempStandPlace'] = pd.to_numeric(df['AirTempStandPlace'], errors='coerce')
 
 # Convert temperature from Fahrenheit to Celsius
@@ -37,7 +36,6 @@ processed_df.reset_index(drop=True, inplace=True)
 processed_df.index += 1
 processed_df['dataId'] = processed_df.index
 
-# Reorder the columns to match the desired output
 final_processed_df = processed_df[['dataId', 'pointId', 'timestamp', 'temperature', 'humidity', 'altitude']]
 
-final_processed_df.to_csv('processed_data.csv', index=False)
+final_processed_df.to_csv('min_param_api/processed_data.csv', index=False)
