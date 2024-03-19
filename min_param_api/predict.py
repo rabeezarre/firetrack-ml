@@ -2,38 +2,61 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
-import joblib  # for loading the saved models
+import matplotlib.pyplot as plt
+import seaborn as sns
+import joblib
 
-# Load the new fetched dataset
+# Cluster 0 -> Medium risk: Higher altitude, moderate temperature, and humidity
+# Cluster 1 -> High risk: Lower altitude, higher temperature, and lower humidity
+# Cluster 2 -> Low risk: Moderate altitude, lower temperature, and higher humidity
+
+cluster_to_risk = {
+    0: 'Medium',
+    1: 'High',
+    2: 'Low'
+}
+
 fetched_data = pd.read_csv('min_param_api/fetched_data.csv')
 
-# Assuming you have saved your trained scaler, KMeans, and RandomForest models
-# Load them back
-scaler = joblib.load('scaler_model.pkl')
-kmeans = joblib.load('kmeans_model.pkl')
-clf = joblib.load('random_forest_model.pkl')
+scaler = joblib.load('min_param_api/scaler_model.pkl')
+kmeans = joblib.load('min_param_api/kmeans_model.pkl')
+clf = joblib.load('min_param_api/random_forest_model.pkl')
 
 # Preprocess the fetched dataset using the loaded scaler
 features = fetched_data[['temperature', 'humidity', 'altitude']]
 features_scaled = scaler.transform(features)  # Use transform, not fit_transform
 
-# Apply K-Means clustering to assign clusters to the new data
 fetched_data['cluster'] = kmeans.predict(features_scaled)
-
-# Map clusters to risk labels (ensure `cluster_to_risk` dictionary is correctly defined as before)
 fetched_data['wildfire_risk'] = fetched_data['cluster'].map(cluster_to_risk)
 
-# Now you can use the Random Forest classifier to predict wildfire risk
-# This step might be redundant if you're already assigning risk based on clusters, unless you're
-# using the Random Forest model for a different set of predictions or further refinement.
+# Summary of predicted risks
+risk_summary = fetched_data['wildfire_risk'].value_counts()
+print("Summary of Predicted Wildfire Risks:")
+print(risk_summary)
 
-# To illustrate, if you were to use the Random Forest Classifier for predictions:
-# Ensure your labels are encoded if clf expects numerical labels
-# y_pred = clf.predict(features_scaled)
-# Then you can compare these predictions to actual labels, if you have them, or use the predictions as is.
+# Visualize the distribution of wildfire risks
+plt.figure(figsize=(8, 6))
+sns.countplot(data=fetched_data, x='wildfire_risk', hue='wildfire_risk', dodge=False, palette='viridis', order=fetched_data['wildfire_risk'].value_counts().index)
+plt.title('Distribution of Predicted Wildfire Risks')
+plt.xlabel('Wildfire Risk')
+plt.ylabel('Count')
+plt.legend(title='Wildfire Risk', loc='upper right', labels=fetched_data['wildfire_risk'].value_counts().index)
+plt.show()
 
-# Since it looks like your process is to assign risk based on clusters (and not directly predict with RandomForest),
-# the above prediction step with RandomForest might not be needed unless your workflow requires it for other reasons.
+# Detailed analysis
+mean_values = fetched_data.groupby('wildfire_risk')[['temperature', 'humidity', 'altitude']].mean()
+print("\nMean Temperature, Humidity, and Altitude by Wildfire Risk:")
+print(mean_values)
 
-# Note: The saving and loading of models (using joblib in this example) is crucial for applying trained models to new data.
-# Ensure you have saved your models after training them on your initial dataset.
+# Geographical distribution of predicted wildfire risks
+if 'latitude' in fetched_data.columns and 'longitude' in fetched_data.columns:
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(x='longitude', y='latitude', hue='wildfire_risk', data=fetched_data, palette='viridis', s=100)
+    plt.title('Geographical Distribution of Predicted Wildfire Risks')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.legend(title='Wildfire Risk')
+    plt.grid(True)
+    plt.show()
+
+fetched_data.to_csv('min_param_api/fetched_data_with_predictions.csv', index=False)
